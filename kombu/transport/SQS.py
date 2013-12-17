@@ -391,7 +391,8 @@ class Channel(virtual.Channel):
         # a token, so we know that we are allowed to consume at least
         # one message.
         maxcount = self.qos.can_consume_max_estimate()
-        maxcount = max_if_unlimited if maxcount is None else max(maxcount, 1)
+        # SQS only allows MaxNumberOfMessages between 1 and 10
+        maxcount = max_if_unlimited if maxcount is None else min(max(maxcount, 1), max_if_unlimited)
         messages = self._get_from_sqs(queue, count=maxcount)
 
         if not messages:
